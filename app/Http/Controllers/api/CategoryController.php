@@ -39,7 +39,10 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        return Category::find($id);
+        // return Category::find($id);
+        $category = Category::find($id);
+        return new CategoryResource($category,200,"berhasil get data category");
+
     }
 
     /**

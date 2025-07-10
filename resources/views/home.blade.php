@@ -1,0 +1,1 @@
+<p style="color: aqua;" class="text-5xl text-red-700">halmana</p>
