@@ -1,6 +1,4 @@
-<<<<<<< Updated upstream
-<p style="color: aqua;" class="text-5xl text-red-700">halmana</p>
-=======
+
 <!-- resources/views/home.blade.php -->
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
