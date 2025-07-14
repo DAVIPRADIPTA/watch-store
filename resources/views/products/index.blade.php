@@ -90,39 +90,41 @@ shadow ring-0 transition duration-200 ease-in-out"></span>
                         <td class="py-3 px-4 border-b border-gray-200">
                             @if (empty($product->hub_product_id))
                             <button
-                                x-data="{ productId: {{ $product->id }} }"
+                                x-data="{ productId: '{{ $product->id }}' }"
                                 x-on:click="
- const url = `/api/products/${productId}/sync-to-hub`;
- const csrfToken =
-document.querySelector('meta[name='csrf-token']').getAttribute('content');
- fetch(url, {
- method: 'POST',
- headers: {
- 'Content-Type': 'application/json',
- 'Accept': 'application/json',
- 'X-CSRF-TOKEN': csrfToken,
- },
-body: JSON.stringify({})
- })
-.then(response => {
- if (!response.ok) {
- return response.json().then(err => { throw new Error(err.message || 'Failed to
-sync product'); });
- }
-return response.json();
- })
-.then(data => {
- alert(data.message + '\\nHub Product ID: ' + data.hub_product_id);
- location.reload();
- })
-.catch(error => {
- console.error('Error syncing product:', error);
- alert('Gagal sinkronisasi produk ke Hub: ' + error.message);
- });
- "
+        const url = `/api/products/${productId}/sync-to-hub`;
+        const csrfToken = document.querySelector('meta[name=\'csrf-token\']').getAttribute('content');
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.message || 'Failed to sync product');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert(data.message + '\nHub Product ID: ' + data.hub_product_id);
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error syncing product:', error);
+            alert('Gagal sinkronisasi produk ke Hub: ' + error.message);
+        });
+    "
                                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
                                 Sinkronkan ke Hub
                             </button>
+
                             @else
                             <button
                                 x-data="{ productId: {{ $product->id }} }"
@@ -163,11 +165,73 @@ location.reload();
                             <a href="{{ route('products.edit', $product->id) }}" class="bg-green-500 hover:bg-green-700
 text-white font-bold py-2 px-4 rounded text-sm ml-2">Edit</a>
                         </td>
+                        <td>
+                            <form id="sync-product-{{ $product->id }}">
+                                @csrf
+                                <input type="hidden" name="is_active" value="@if($product->hub_product_id) 1 @else 0 @endif">
+                                @if($product->hub_product_id)
+                                <flux:switch checked onchange="syncProduct('{{ $product->id }}', true)" />
+                                @else
+                                <flux:switch onchange="syncProduct('{{ $product->id }}', false)" />
+                                @endif
+                            </form>
+                        </td>
+
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
     </div>
+    <script>
+        function syncProduct(productId, isActive) {
+            const form = document.getElementById(`sync-product-${productId}`);
+            const csrfToken = form.querySelector('input[name="_token"]').value;
+
+            fetch(`/products/sync/${productId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        is_active: isActive ? 1 : 0
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Gagal sinkron produk');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message || 'Produk berhasil disinkronkan');
+                })
+                .catch(error => {
+                    console.error('❌ Error:', error);
+                    alert('Gagal sinkronisasi produk: ' + error.message);
+                });
+        }
+    </script>
 
 </x-layouts.app>
+
+<!-- <x-layouts.app :title="' Produk'">
+<th>On/Off</th>
+
+
+  <td>
+    <form id="sync-product-{{ $product->id }}" action="{{ route('products.sync', $product->id) }}" method="POST">
+          @csrf
+          <input type="hidden" name="is_active" value="@if($product->hub_product_id) 1 @else 0 @endif" >
+              @if($product->hub_product_id)
+                 <flux:switch checked onchange="document.getElementById('sync-product-{{ $product->id }}').submit()" />
+              @else
+                 <flux:switch onchange="document.getElementById('sync-product-{{ $product->id }}').submit()" />
+              @endif
+   </form>
+  </td>
+</x-layouts.app> -->

@@ -98,7 +98,7 @@
     <footer>
         <!-- Gambar Banner Footer -->
         <div>
-            <img src="{{ asset('halo.jpeg') }}" alt="Luxury watches close-up" class="w-full object-cover">
+            <img src="{{ asset('storage/images/hero-watch.jpg') }}" alt="Luxury watches close-up" class="w-full object-cover">
         </div>
         
         <!-- Area Tautan Footer -->

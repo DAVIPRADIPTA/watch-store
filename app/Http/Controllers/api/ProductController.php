@@ -3,19 +3,28 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Services\HubApiService;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
+
+
 class ProductController extends Controller
 {
+
+
+
+    
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $products = Product::all();
-        return new ProductResource($products,200, "berhasil get data product");
+        return new ProductResource($products, 200, "berhasil get data product");
     }
 
 
@@ -42,7 +51,7 @@ class ProductController extends Controller
     public function show($id)
     {
         $products = Product::find($id);
-        return new ProductResource($products,200, "berhasil get data product");
+        return new ProductResource($products, 200, "berhasil get data product");
     }
 
     /**
