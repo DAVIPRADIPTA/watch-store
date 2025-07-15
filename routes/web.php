@@ -6,12 +6,23 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CustomerAuthController;
+use App\Models\Product;
+use App\Models\Category;
 
 
 
 Route::get('/', function () {
-    return view('home');
+    $products = Product::all(); // semua produk
+    $categories = Category::all(); // untuk dropdown
+    return view('home', compact('products', 'categories'));
 })->name('home');
+
+Route::get('/category/{id}', function ($id) {
+    $products = Product::where('category_id', $id)->get();
+    $categories = Category::all();
+    return view('home', compact('products', 'categories'));
+})->name('category.filter');
+
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
