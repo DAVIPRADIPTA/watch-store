@@ -30,9 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 
-    Route::post('/products/{product}/sync-to-hub', [ProductController::class, 'syncProductToHub']);
-    Route::put('/products/{product}/toggle-visibility', [ProductController::class, 'toggleVisibility']);
-    Route::delete('/products/{product}/delete-from-hub', [ProductController::class, 'deleteProductFromHub']);
+    // 
 
 });
 

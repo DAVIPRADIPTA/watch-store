@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\HubApiService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 
 class ProductController extends Controller
 {
@@ -23,7 +27,7 @@ class ProductController extends Controller
             'description' => $product->description,
             'price' => $product->price,
             'stock' => $product->stock,
-            // 'sku' => $product->sku,
+            // 'sku' => $product->sku,                                                                                                      
             'image' => $product->image_url,
             'is_visible' => $request->is_active == 1 ? false : true,
             'category_id' => (string) $product->category->hub_category_id,
@@ -154,7 +158,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+
+        return view('products.create', compact('categories'));
     }
 
     /**
@@ -162,7 +168,27 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'stock' => 'nullable|numeric',
+            'image' => 'nullable|image|max:2048', // Jika ada field type
+        ]);
+
+        $validated['id'] = Str::uuid();
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+
+
+        Product::create($validated);
+
+        return redirect()->route('products.index')
+            ->with('success', 'Produk berhasil ditambahkan!');
     }
 
     /**
@@ -178,22 +204,53 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $product = Product::findOrFail($id); // Ambil produk berdasarkan ID
+
+        $categories = Category::with('products')->get();
+        return view('products.edit', compact('product', 'categories'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Product $product)
     {
-        //
+         $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'stock' => 'nullable|numeric',
+            'image' => 'nullable|image|max:2048', // Jika ada field type
+        ]);
+
+        // Handle checkbox is_favorite (karena unchecked tidak akan terkirim)
+        // $validated['is_favorite'] = $request->has('is_favorite');
+
+        // Handle file upload jika ada
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            // Simpan gambar baru
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Update produk
+        $product->update($validated);
+
+        return redirect()->route('products.index')
+            ->with('success', 'Produk berhasil diperbarui');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Product $product)
     {
-        //
+        $product->delete();
+        return redirect()->route('products.index')->with('success', 'Produk berhasil dihapus!');
     }
 }

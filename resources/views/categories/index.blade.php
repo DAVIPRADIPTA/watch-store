@@ -1,6 +1,12 @@
 <x-layouts.app :title="'Kategori Produk'">
     <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">Daftar Kategori</h1>
+        <div class="flex justify-between mb-7">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Daftar kategori</h2>
+            <a href="{{ route('categories.create') }}"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mb-4 inline-block">
+                + Tambah kategori
+            </a>
+        </div> 
 
         {{-- Flash Messages --}}
         @if (session('success'))

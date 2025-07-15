@@ -8,6 +8,8 @@ use App\Models\Category;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+
 
 class CategoryController extends Controller
 {
@@ -79,7 +81,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('categories.create');
     }
 
     /**
@@ -87,7 +89,17 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+          $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+        ]);
+
+        // $validated['slug'] = Str::slug($validated['name']);
+        $validated['id'] = Str::uuid();
+
+        Category::create($validated);
+
+        return redirect()->route('categories.index')
+            ->with('success', 'Kategori berhasil ditambahkan');
     }
 
     /**
