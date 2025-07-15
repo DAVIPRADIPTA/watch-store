@@ -1,4 +1,3 @@
-<!-- resources/views/home.blade.php -->
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -6,11 +5,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>WATCH STORE - Luxury Timepieces</title>
-
     @vite('resources/css/app.css')
+
+    <!-- Alpine.js untuk Dropdown -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
-<body class="bg-white font-sans">
+<body class="bg-white font-sans" x-data="{ openUserMenu: false }">
 
     <!-- Hero Section -->
     <header class="relative h-screen bg-cover bg-center overflow-hidden" style="background-image: url('{{ asset('images/hero-watch.jpg') }}')">
@@ -18,12 +19,43 @@
         <div class="absolute top-0 left-0 w-full px-8 py-6 z-20">
             <div class="container mx-auto flex justify-between items-center">
                 <a href="/" class="text-xl font-bold tracking-wider text-black">WATCH STORE</a>
-                <nav class="hidden md:flex items-center space-x-8"><a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">Shop</a><a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">About</a><a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">Journal</a><a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">Contact</a></nav>
-                <div class="flex items-center space-x-6"><a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">Login</a><a href="#" class="flex items-center space-x-2 text-black hover:text-gray-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg><span class="font-semibold">0</span></a></div>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">Shop</a>
+                    <a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">About</a>
+                    <a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">Journal</a>
+                    <a href="#" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600">Contact</a>
+                </nav>
+                <div class="flex items-center space-x-6">
+                    {{-- Cek apakah customer sudah login --}}
+                    @if(auth()->guard('customer')->check())
+                        <!-- Dropdown User -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600 focus:outline-none">
+                                {{ Auth::guard('customer')->user()->name }}
+                            </button>
+                            <div
+                                x-show="open"
+                                @click.away="open = false"
+                                x-transition
+                                class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 shadow-lg rounded-md z-50"
+                            >
+                                <form method="POST" action="{{ route('customer.logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-gray-100">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <!-- Jika belum login -->
+                        <a class="btn btn-outline-primary text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600" href="{{ route('customer.login') }}">Login</a>
+                        <a class="btn btn-primary text-sm font-semibold uppercase tracking-widest text-black hover:text-gray-600" href="{{ route('customer.register') }}">Register</a>
+                    @endif
+
+                </div>
             </div>
         </div>
+
+        <!-- Hero Text -->
         <div class="absolute bottom-20 left-10 md:left-20 text-black z-10">
             <div class="flex flex-col items-start">
                 <div>
@@ -33,11 +65,17 @@
                 <a href="#" class="mt-8 px-10 py-3 border border-black rounded-full text-sm uppercase font-semibold tracking-widest text-black hover:bg-black hover:text-white transition-colors duration-300">Shop Now</a>
             </div>
         </div>
-            <div class="absolute bottom-0 left-0 w-full bg-orange-400 py-3 z-10">
-                <div class="relative flex overflow-x-hidden">
-                    <div class="flex flex-shrink-0 items-center animate-marquee"><span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">100 Bonus Points on Purchases Over $300</span><span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">SiteWide Sale / The 2024 Collection</span><span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">Up to 30% Off Selected Items</span><span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">100 Bonus Points on Purchases Over $300</span><span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">SiteWide Sale / The 2024 Collection</span><span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">Up to 30% Off Selected Items</span></div>
+
+        <!-- Running Banner -->
+        <div class="absolute bottom-0 left-0 w-full bg-orange-400 py-3 z-10">
+            <div class="relative flex overflow-x-hidden">
+                <div class="flex flex-shrink-0 items-center animate-marquee">
+                    <span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">100 Bonus Points on Purchases Over $300</span>
+                    <span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">SiteWide Sale / The 2024 Collection</span>
+                    <span class="mx-8 text-sm uppercase font-semibold tracking-wider text-black">Up to 30% Off Selected Items</span>
                 </div>
             </div>
+        </div>
     </header>
 
     <main>
@@ -118,9 +156,9 @@
     <!-- =================================================================== -->
     <footer>
         <!-- Gambar Banner Footer -->
-        <div>
+        {{-- <div>
             <img src="{{ asset('storage/images/hero-watch.jpg') }}" alt="Luxury watches close-up" class="w-full object-cover">
-        </div>
+        </div> --}}
 
         <!-- Area Tautan Footer -->
         <div class="bg-black text-white">
@@ -159,4 +197,3 @@
 </body>
 
 </html>
->>>>>>> Stashed changes
