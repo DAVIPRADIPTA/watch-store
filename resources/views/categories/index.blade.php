@@ -6,7 +6,7 @@
                 class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mb-4 inline-block">
                 + Tambah kategori
             </a>
-        </div> 
+        </div>
 
         {{-- Flash Messages --}}
         @if (session('success'))
@@ -34,60 +34,10 @@
                 @foreach ($categories as $category)
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-2 border-b">{{ $category->name }}</td>
-                    <td class="px-4 py-2 border-b">
-                        @if ($category->hub_category_id)
-                        <span class="text-green-600">Tersinkron (ID: {{ $category->hub_category_id }})</span>
-                        @else
-                        <span class="text-red-600">Belum Sinkron</span>
-                        @endif
-                    </td>
-                    <td class="px-4 py-2 border-b">
-                        @if (!$category->hub_category_id)
-                        <button
-                            x-data="{ categoryId: '{{ $category->id }}' }"
-                            x-on:click="
-        const url = `/category/${categoryId}/sync-to-hub`;
-        const csrfToken = document.querySelector('meta[name=\'csrf-token\']').getAttribute('content');
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-            },
-            body: JSON.stringify({})
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => {
-                    console.error('❌ Error Response:', err); // TAMPILKAN ERROR DI CONSOLE
-                    throw new Error(err.message || 'Gagal sinkron kategori');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message + '\nHub Category ID: ' + data.hub_category_id);
-            location.reload();
-        })
-        .catch(error => {
-            console.error('❌ CATCH ERROR:', error); // JIKA ERROR JARINGAN ATAU LAINNYA
-            alert('Gagal sinkronisasi kategori ke Hub: ' + error.message);
-        });
-    "
-                            class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
-                            Sinkronkan ke Hub
-                        </button>
-
-                        @else
-                        <span class="text-gray-500 text-sm">✓</span>
-                        @endif
-                    </td>
                     <td>
                         <form id="sync-category-{{ $category->id }}">
                             @csrf
-                            <input type="hidden" name="is_active" value="@if($category->hub_category_id) 1 @else 0 @endif">
+                            <input type="hidden" name="is_active" value="{{ $category->is_active ? 1 : 0 }}">
                             @if($category->hub_category_id)
                             <flux:switch checked onchange="syncCategory('{{ $category->id }}', true)" />
                             @else
@@ -95,6 +45,18 @@
                             @endif
                         </form>
                     </td>
+                    <td class="py-3 px-4 border-b border-gray-200">
+                        <a href="{{ route('categories.edit', $category->id) }}" class="bg-green-500 hover:bg-green-700
+text-white font-bold py-2 px-4 rounded text-sm ml-2">Edit</a>
+                        <form action="{{ route('categories.destroy', $category->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm ml-2">
+                                Hapus
+                            </button>
+                        </form>
+                    </td>
+
 
                 </tr>
                 @endforeach

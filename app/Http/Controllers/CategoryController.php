@@ -13,33 +13,73 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    
-
     public function sync($id, Request $request)
     {
         $category = Category::findOrFail($id);
+        $isActive = $request->is_active == 1 ? false : true;
 
-        $response = Http::post('https://api.phb-umkm.my.id/api/product-category/sync', [
+        // Langkah 1: Dapatkan Access Token
+        $tokenResponse = Http::asForm()->post('https://api.phb-umkm.my.id/oauth/token', [
+            'grant_type' => 'client_credentials',
             'client_id' => env('HUB_CLIENT_ID'),
             'client_secret' => env('HUB_CLIENT_SECRET'),
-            'seller_product_category_id' => (string) $category->id,
-            'name' => $category->name,
-            'is_active' => $request->is_active == 1 ? false : true,
         ]);
 
-        if ($response->successful() && isset($response['product_category_id'])) {
-            $category->hub_category_id = $request->is_active == 1 ? null : $response['product_category_id'];
+        if (!$tokenResponse->successful() || !isset($tokenResponse['access_token'])) {
+            return response()->json(['message' => 'Gagal mendapatkan token akses dari Hub.'], 500);
+        }
+
+        $accessToken = $tokenResponse['access_token'];
+
+        // Langkah 2: Sinkron atau Hapus dari Hub
+        if ($isActive) {
+            // Sinkronisasi ke Hub
+            $response = Http::withToken($accessToken)->post('https://api.phb-umkm.my.id/api/product-category/sync', [
+                'client_id' => env('HUB_CLIENT_ID'),
+                'client_secret' => env('HUB_CLIENT_SECRET'),
+                'seller_product_category_id' => (string) $category->id,
+                'name' => $category->name,
+                'is_active' => true,
+            ]);
+
+            if ($response->successful() && isset($response['product_category_id'])) {
+                $category->hub_category_id = $response['product_category_id'];
+                $category->is_active = true;
+                $category->save();
+            } else {
+                return response()->json(['message' => 'Gagal menyinkronkan kategori ke Hub.'], 500);
+            }
+        } else {
+            // Hapus dari Hub jika sudah tersinkron
+            if ($category->hub_category_id) {
+                $deleteResponse = Http::withToken($accessToken)
+                    ->delete('https://api.phb-umkm.my.id/api/product-category/' . $category->hub_category_id);
+
+                if (!$deleteResponse->successful()) {
+                    return response()->json([
+                        'message' => 'Gagal menghapus kategori dari Hub.',
+                        'error' => $deleteResponse->body()
+                    ], 500);
+                }
+            }
+
+            // Update lokal
+            $category->hub_category_id = null;
+            $category->is_active = false;
             $category->save();
         }
 
+        // Response
         if ($request->expectsJson()) {
             return response()->json(['message' => 'Kategori berhasil disinkronkan ke Hub.']);
         }
 
-        // fallback jika bukan request AJAX
         session()->flash('successMessage', 'Kategori berhasil disinkronkan.');
         return redirect()->back();
     }
+
+
+
 
     public function syncToHub($id, HubCategoryService $hubCategoryService)
     {
@@ -89,7 +129,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-          $validated = $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
         ]);
 
@@ -115,7 +155,9 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // 
+        $category = Category::findOrFail($id);
+        return view('categories.edit', compact('category'));
     }
 
     /**
@@ -123,7 +165,16 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $category = Category::findOrFail($id);
+        $category->name = $request->name;
+        // $category->slug = Str::slug($request->name);
+        $category->save();
+
+        return redirect()->route('categories.index')->with('success', 'Kategori berhasil diperbarui.');
     }
 
     /**

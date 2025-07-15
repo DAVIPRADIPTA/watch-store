@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 
 
 Route::get('/', function () {
@@ -23,6 +24,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::post('products/sync/{id}', [ProductController::class, 'sync'])->name('products.sync');
     Route::post('category/sync/{id}', [CategoryController::class, 'sync'])->name('category.sync');
+
+    Route::get('/order', [OrderController::class, 'index'])->name('order');
+
 
     Route::redirect('settings', 'settings/profile');
 
