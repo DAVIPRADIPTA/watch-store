@@ -26,7 +26,6 @@
 uppercase tracking-wider">Nama Produk</th>
                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600
 uppercase tracking-wider">Harga</th>
-                        
                         <th>status</th>
                         <th>sigkron</th>
                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600
@@ -76,38 +75,4 @@ text-white font-bold py-2 px-4 rounded text-sm ml-2">Edit</a>
             </table>
         </div>
     </div>
-    <script>
-        function syncProduct(productId, isActive) {
-            const form = document.getElementById(`sync-product-${productId}`);
-            const csrfToken = form.querySelector('input[name="_token"]').value;
-
-            fetch(`/products/sync/${productId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        is_active: isActive ? 1 : 0
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.message || 'Gagal sinkron produk');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    alert(data.message || 'Produk berhasil disinkronkan');
-                })
-                .catch(error => {
-                    console.error('❌ Error:', error);
-                    alert('Gagal sinkronisasi produk: ' + error.message);
-                });
-        }
-    </script>
-
 </x-layouts.app>

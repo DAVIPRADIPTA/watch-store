@@ -31,12 +31,8 @@ Route::view('dashboard', 'dashboard')
 
 Route::middleware(['auth'])->group(function () {
 
-
-    // Route::post('/category/{id}/sync-to-hub', [CategoryController::class, 'syncToHub'])->name('categories.sync');
     Route::resource('products', ProductController::class);
     Route::resource('categories', CategoryController::class);
-    // Route::post('products/sync/{id}', [ProductController::class, 'sync'])->name('products.sync');
-    // Route::post('category/sync/{id}', [CategoryController::class, 'sync'])->name('categories.sync');
 
     Route::get('/order', [OrderController::class, 'index'])->name('order');
 
@@ -50,8 +46,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('products/{product}/sync', [ProductController::class, 'sync'])->name('products.sync');
     Route::post('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])->name('products.toggleStatus');
 
-    Route::post('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggleStatus');
     Route::post('categories/{category}/sync', [CategoryController::class, 'sync'])->name('categories.sync');
+    Route::post('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggleStatus');
+
 
 });
 

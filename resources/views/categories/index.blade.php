@@ -36,17 +36,6 @@
                 @foreach ($categories as $category)
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-2 border-b">{{ $category->name }}</td>
-                    <!-- <td>
-                        <form id="sync-category-{{ $category->id }}">
-                            @csrf
-                            <input type="hidden" name="is_active" value="{{ $category->is_active ? 1 : 0 }}">
-                            @if($category->hub_category_id)
-                            <flux:switch checked onchange="syncCategory('{{ $category->id }}', true)" />
-                            @else
-                            <flux:switch onchange="syncCategory('{{ $category->id }}', false)" />
-                            @endif
-                        </form>
-                    </td> -->
 
                     {{-- Status --}}
                         <td class="border px-4 py-2 text-center">
@@ -87,38 +76,5 @@ text-white font-bold py-2 px-4 rounded text-sm ml-2">Edit</a>
 
         </table>
     </div>
-    <script>
-        function syncCategory(categoryId, isActive) {
-            const form = document.getElementById(`sync-category-${categoryId}`);
-            const csrfToken = form.querySelector('input[name="_token"]').value;
-
-            fetch(`/category/sync/${categoryId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        is_active: isActive ? 1 : 0
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.message || 'Gagal sinkron kategori');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    alert(data.message || 'Kategori disinkronkan');
-                })
-                .catch(error => {
-                    console.error('❌ Error:', error);
-                    alert('Gagal sinkronisasi kategori: ' + error.message);
-                });
-        }
-    </script>
 
 </x-layouts.app>

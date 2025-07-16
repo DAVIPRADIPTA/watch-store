@@ -23,7 +23,8 @@ class Product extends Model
         'description',
         'stock',
         'image',
-        'category_id'
+        'category_id',
+        'hub_product_id'
 
     ];
 

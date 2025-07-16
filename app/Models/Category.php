@@ -16,7 +16,8 @@ class Category extends Model
     protected $fillable = [
         'id',
         'name',
-        'ia_active'
+        'ia_active',
+        'hub_category_id'
     ];
 
     public function products()

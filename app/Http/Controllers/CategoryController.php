@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\HubCategoryService;
 use App\Models\Category;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -40,7 +37,6 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name',
         ]);
 
-        // $validated['slug'] = Str::slug($validated['name']);
         $validated['id'] = Str::uuid();
 
         Category::create($validated);
@@ -78,7 +74,6 @@ class CategoryController extends Controller
 
         $category = Category::findOrFail($id);
         $category->name = $request->name;
-        // $category->slug = Str::slug($request->name);
         $category->save();
 
         return redirect()->route('categories.index')->with('success', 'Kategori berhasil diperbarui.');
@@ -87,9 +82,10 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
-        //
+        $category->delete();
+        return redirect()->route('categories.index')->with('success', 'Category berhasil dihapus!');
     }
 
     public function sync(Request $request, Category $category)
@@ -99,7 +95,6 @@ class CategoryController extends Controller
             'client_secret' => env('HUB_CLIENT_SECRET'),
             'seller_product_category_id' => (string) $category->id,
             'name' => $category->name,
-            'description' => $category->description,
             'is_active' => $category->is_active == 1 ? true : false,
         ]);
 
@@ -115,7 +110,6 @@ class CategoryController extends Controller
         $category->is_active = !$category->is_active;
         $category->save();
 
-        // Update semua novel yang termasuk dalam kategori ini
         $category->products()->update(['is_active' => $category->is_active]);
 
         return redirect()->route('categories.index')->with('success', 'Status kategori dan novel di dalamnya berhasil diperbarui.');

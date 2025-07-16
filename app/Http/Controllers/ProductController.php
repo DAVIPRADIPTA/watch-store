@@ -91,24 +91,17 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'stock' => 'nullable|numeric',
-            'image' => 'nullable|image|max:2048', // Jika ada field type
+            'image' => 'nullable|image|max:2048', 
         ]);
 
-        // Handle checkbox is_favorite (karena unchecked tidak akan terkirim)
-        // $validated['is_favorite'] = $request->has('is_favorite');
-
-        // Handle file upload jika ada
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
             if ($product->image && Storage::disk('public')->exists($product->image)) {
                 Storage::disk('public')->delete($product->image);
             }
 
-            // Simpan gambar baru
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
-        // Update produk
         $product->update($validated);
 
         return redirect()->route('products.index')
@@ -134,24 +127,21 @@ class ProductController extends Controller
 
     public function sync(Request $request, Product $product)
     {
-        // Contoh endpoint sinkronisasi eksternal (bisa diganti dengan real API)
         $response = Http::post('https://api.phb-umkm.my.id/api/product/sync', [
             'client_id' => env('HUB_CLIENT_ID'),
             'client_secret' => env('HUB_CLIENT_SECRET'),
             'seller_product_id' => (string) $product->id,
-            'name' => $product->title,
+            'name' => $product->name,
             'description' => $product->description,
             'price' => $product->price,
             'stock' => $product->stock,
-            // 'sku' => $product->sku,
             'image' => $product->image ? $product->image : null,
-            // 'weight' => $product->weight,
             'is_active' => $product->is_active == 1 ? true : false,
             'category_id' => (string) optional($product->category)->hub_category_id,
         ]);
 
         if ($response->successful() && isset($response['product_id'])) {
-            $product->hub_novel_id = $request->is_active == 1 ? null : $response['product_id'];
+            $product->hub_product_id = $request->is_active == 1 ? null : $response['product_id'];
             $product->save();
         }
 
