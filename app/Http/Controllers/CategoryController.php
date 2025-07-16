@@ -13,99 +13,6 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function sync($id, Request $request)
-    {
-        $category = Category::findOrFail($id);
-        $isActive = $request->is_active == 1 ? false : true;
-
-        // Langkah 1: Dapatkan Access Token
-        $tokenResponse = Http::asForm()->post('https://api.phb-umkm.my.id/oauth/token', [
-            'grant_type' => 'client_credentials',
-            'client_id' => env('HUB_CLIENT_ID'),
-            'client_secret' => env('HUB_CLIENT_SECRET'),
-        ]);
-
-        if (!$tokenResponse->successful() || !isset($tokenResponse['access_token'])) {
-            return response()->json(['message' => 'Gagal mendapatkan token akses dari Hub.'], 500);
-        }
-
-        $accessToken = $tokenResponse['access_token'];
-
-        // Langkah 2: Sinkron atau Hapus dari Hub
-        if ($isActive) {
-            // Sinkronisasi ke Hub
-            $response = Http::withToken($accessToken)->post('https://api.phb-umkm.my.id/api/product-category/sync', [
-                'client_id' => env('HUB_CLIENT_ID'),
-                'client_secret' => env('HUB_CLIENT_SECRET'),
-                'seller_product_category_id' => (string) $category->id,
-                'name' => $category->name,
-                'is_active' => true,
-            ]);
-
-            if ($response->successful() && isset($response['product_category_id'])) {
-                $category->hub_category_id = $response['product_category_id'];
-                $category->is_active = true;
-                $category->save();
-            } else {
-                return response()->json(['message' => 'Gagal menyinkronkan kategori ke Hub.'], 500);
-            }
-        } else {
-            // Hapus dari Hub jika sudah tersinkron
-            if ($category->hub_category_id) {
-                $deleteResponse = Http::withToken($accessToken)
-                    ->delete('https://api.phb-umkm.my.id/api/product-category/' . $category->hub_category_id);
-
-                if (!$deleteResponse->successful()) {
-                    return response()->json([
-                        'message' => 'Gagal menghapus kategori dari Hub.',
-                        'error' => $deleteResponse->body()
-                    ], 500);
-                }
-            }
-
-            // Update lokal
-            $category->hub_category_id = null;
-            $category->is_active = false;
-            $category->save();
-        }
-
-        // Response
-        if ($request->expectsJson()) {
-            return response()->json(['message' => 'Kategori berhasil disinkronkan ke Hub.']);
-        }
-
-        session()->flash('successMessage', 'Kategori berhasil disinkronkan.');
-        return redirect()->back();
-    }
-
-
-
-
-    public function syncToHub($id, HubCategoryService $hubCategoryService)
-    {
-        $category = Category::findOrFail($id);
-
-        if ($category->hub_category_id) {
-            return back()->with('error', 'Kategori sudah tersinkron ke Hub.');
-        }
-
-        try {
-            $hubResponse = $hubCategoryService->createCategory([
-                'name' => $category->name,
-            ]);
-
-            $category->hub_category_id = $hubResponse['category_id']; // sesuaikan key-nya
-            $category->save();
-
-            return back()->with('success', 'Kategori berhasil disinkronkan ke Hub.');
-        } catch (\Throwable $e) {
-            Log::error('Gagal sync kategori: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Gagal sinkronisasi kategori ke Hub.',
-                'error' => $e->getMessage(), // ini akan tampil di console
-            ], 500);
-        }
-    }
     /**
      * Display a listing of the resource.
      */
@@ -183,5 +90,34 @@ class CategoryController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function sync(Request $request, Category $category)
+    {
+        $response = Http::post('https://api.phb-umkm.my.id/api/product-category/sync', [
+            'client_id' => env('HUB_CLIENT_ID'),
+            'client_secret' => env('HUB_CLIENT_SECRET'),
+            'seller_product_category_id' => (string) $category->id,
+            'name' => $category->name,
+            'description' => $category->description,
+            'is_active' => $category->is_active == 1 ? true : false,
+        ]);
+
+        if ($response->successful() && isset($response['product_category_id'])) {
+            $category->hub_category_id = $request->is_active == 1 ? null : $response['product_category_id'];
+            $category->save();
+        }
+
+        return redirect()->back()->with('success', 'Sinkronisasi kategori berhasil.');
+    }
+    public function toggleStatus(Category $category)
+    {
+        $category->is_active = !$category->is_active;
+        $category->save();
+
+        // Update semua novel yang termasuk dalam kategori ini
+        $category->products()->update(['is_active' => $category->is_active]);
+
+        return redirect()->route('categories.index')->with('success', 'Status kategori dan novel di dalamnya berhasil diperbarui.');
     }
 }

@@ -26,7 +26,9 @@
             <thead>
                 <tr>
                     <th class="px-4 py-2 border-b text-left">Nama Kategori</th>
-                    <th class="px-4 py-2 border-b text-left">Status Sinkron</th>
+                    <!-- <th class="px-4 py-2 border-b text-left">Status Sinkron</th> -->
+                    <th>Status</th>
+                    <th>singkron</th>
                     <th class="px-4 py-2 border-b text-left">Aksi</th>
                 </tr>
             </thead>
@@ -34,7 +36,7 @@
                 @foreach ($categories as $category)
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-2 border-b">{{ $category->name }}</td>
-                    <td>
+                    <!-- <td>
                         <form id="sync-category-{{ $category->id }}">
                             @csrf
                             <input type="hidden" name="is_active" value="{{ $category->is_active ? 1 : 0 }}">
@@ -44,7 +46,28 @@
                             <flux:switch onchange="syncCategory('{{ $category->id }}', false)" />
                             @endif
                         </form>
-                    </td>
+                    </td> -->
+
+                    {{-- Status --}}
+                        <td class="border px-4 py-2 text-center">
+                            <form action="{{ route('categories.toggleStatus', $category->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="px-3 py-1 rounded text-white {{ $category->is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' }}">
+                                    {{ $category->is_active ? 'Aktif' : 'Nonaktif' }}
+                                </button>
+                            </form>
+                        </td>
+
+                        {{-- Sinkronisasi --}}
+                        <td class="border px-4 py-2 text-center">
+                            <form action="{{ route('categories.sync', $category) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="px-3 py-1 rounded text-white bg-green-600 hover:bg-green-700">
+                                    Sinkronkan
+                                </button>
+                            </form>
+                        </td>
+
                     <td class="py-3 px-4 border-b border-gray-200">
                         <a href="{{ route('categories.edit', $category->id) }}" class="bg-green-500 hover:bg-green-700
 text-white font-bold py-2 px-4 rounded text-sm ml-2">Edit</a>

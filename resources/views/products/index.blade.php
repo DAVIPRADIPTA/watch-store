@@ -6,7 +6,7 @@
                 class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mb-4 inline-block">
                 + Tambah Produk
             </a>
-        </div> 
+        </div>
         @if (session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
             <span class="block sm:inline">{{ session('success') }}</span>
@@ -26,8 +26,9 @@
 uppercase tracking-wider">Nama Produk</th>
                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600
 uppercase tracking-wider">Harga</th>
-                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600
-uppercase tracking-wider">Visibilitas Produk</th>
+                        
+                        <th>status</th>
+                        <th>sigkron</th>
                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600
 uppercase tracking-wider">Aksi</th>
                     </tr>
@@ -37,15 +38,23 @@ uppercase tracking-wider">Aksi</th>
                     <tr class="hover:bg-gray-50">
                         <td class="py-3 px-4 border-b border-gray-200">{{ $product->name }}</td>
                         <td class="py-3 px-4 border-b border-gray-200">Rp{{ number_format($product->price, 0, ',', '.') }}</td>
-                        <td>
-                            <form id="sync-product-{{ $product->id }}">
+                        {{-- status --}}
+                        <td class="border px-4 py-2 text-center">
+                            <form action="{{ route('products.toggleStatus', $product->id) }}" method="POST">
                                 @csrf
-                                <input type="hidden" name="is_visible" value="@if($product->hub_product_id) 1 @else 0 @endif">
-                                @if($product->hub_product_id)
-                                <flux:switch checked onchange="syncProduct('{{ $product->id }}', true)" />
-                                @else
-                                <flux:switch onchange="syncProduct('{{ $product->id }}', false)" />
-                                @endif
+                                <button type="submit" class="px-3 py-1 rounded text-white {{ $product->is_active ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700' }}">
+                                    {{ $product->is_active ? 'Aktif' : 'Nonaktif' }}
+                                </button>
+                            </form>
+                        </td>
+
+                        {{-- Sinkronisasi --}}
+                        <td class="border px-4 py-2 text-center">
+                            <form action="{{ route('products.sync', $product) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="px-3 py-1 rounded text-white bg-green-600 hover:bg-green-700">
+                                    Sinkronkan
+                                </button>
                             </form>
                         </td>
                         <td class="py-3 px-4 border-b border-gray-200">
