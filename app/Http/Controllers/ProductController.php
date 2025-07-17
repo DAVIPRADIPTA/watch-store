@@ -132,7 +132,7 @@ class ProductController extends Controller
             'description' => $product->description,
             'price' => $product->price,
             'stock' => $product->stock,
-            'image' => $product->image ? $product->image : null,
+            'image_url' => $product->image ? $product->image : null,
             'is_active' => $product->is_active == 1 ? true : false,
             'category_id' => (string) optional($product->category)->hub_category_id,
         ]);
