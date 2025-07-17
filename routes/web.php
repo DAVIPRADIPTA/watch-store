@@ -22,7 +22,7 @@ Route::get('/', function () {
 Route::get('/category/{id}', function ($id) {
     $products = Product::where('category_id', $id)->get();
     $categories = Category::all();
-    return view('home', compact('products', 'categories'));
+    return view('home', compact('products', 'cheapestProduct', 'categories'));
 })->name('category.filter');
 
 Route::get('/product/{id}', function ($id) {
