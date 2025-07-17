@@ -25,10 +25,10 @@ Route::get('/category/{id}', function ($id) {
     return view('home', compact('products', 'categories'));
 })->name('category.filter');
 
-Route::get('/products/{id}', function ($id) {
+Route::get('/product/{id}', function ($id) {
     $product = Product::where('id', $id)->firstOrFail();
     return view('products.show', compact('product'));
-})->name('product.show');
+})->name('detail.show');
 
 
 Route::view('dashboard', 'dashboard')

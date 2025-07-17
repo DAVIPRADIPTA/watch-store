@@ -116,7 +116,7 @@
                 <!-- Grid Produk -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
                     @forelse($products as $product)
-                    <a href="{{ route('product.show', $product->id) }}"
+                    <a href="{{ route('detail.show', $product->id) }}"
                         class="group block transition duration-300">
                         <div class="bg-gray-100 aspect-square flex items-center justify-center p-6">
                             <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
@@ -165,7 +165,7 @@
                         <p class="text-2xl text-orange-500 font-bold mb-6">
                             Rp{{ number_format($cheapestProduct->price, 0, ',', '.') }}
                         </p>
-                        <a href="{{ route('product.show', $cheapestProduct->id) }}"
+                        <a href="{{ route('detail.show', $cheapestProduct->id) }}"
                             class="inline-block px-10 py-3 border border-black rounded-full text-sm uppercase font-semibold tracking-widest text-black hover:bg-black hover:text-white transition-colors duration-300">
                             Lihat Detail
                         </a>
