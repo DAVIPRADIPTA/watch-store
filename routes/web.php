@@ -21,6 +21,7 @@ Route::get('/', function () {
 
 Route::get('/category/{id}', function ($id) {
     $products = Product::where('category_id', $id)->get();
+    $cheapestProduct = Product::orderBy('price')->first();
     $categories = Category::all();
     return view('home', compact('products', 'cheapestProduct', 'categories'));
 })->name('category.filter');
