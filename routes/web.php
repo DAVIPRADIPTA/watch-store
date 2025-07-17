@@ -12,9 +12,11 @@ use App\Models\Category;
 
 
 Route::get('/', function () {
-    $products = Product::all(); // semua produk
-    $categories = Category::all(); // untuk dropdown
-    return view('home', compact('products', 'categories'));
+    $products = Product::all();
+    $cheapestProduct = Product::orderBy('price')->first();
+    $categories = Category::all();
+
+    return view('home', compact('products', 'cheapestProduct', 'categories'));
 })->name('home');
 
 Route::get('/category/{id}', function ($id) {
@@ -22,6 +24,11 @@ Route::get('/category/{id}', function ($id) {
     $categories = Category::all();
     return view('home', compact('products', 'categories'));
 })->name('category.filter');
+
+Route::get('/products/{id}', function ($id) {
+    $product = Product::where('id', $id)->firstOrFail();
+    return view('products.show', compact('product'));
+})->name('products.show');
 
 
 Route::view('dashboard', 'dashboard')

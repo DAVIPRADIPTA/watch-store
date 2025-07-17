@@ -22,6 +22,9 @@
             <table class="min-w-full bg-white shadow-md rounded-lg">
                 <thead>
                     <tr>
+                        <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            Gambar
+                        </th>
                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600
 uppercase tracking-wider">Nama Produk</th>
                         <th class="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600
@@ -35,6 +38,13 @@ uppercase tracking-wider">Aksi</th>
                 <tbody>
                     @foreach ($products as $product)
                     <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 border-b border-gray-200">
+                            @if($product->image)
+                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-16 h-16 object-cover rounded">
+                            @else
+                                <span class="text-gray-400 text-sm">Tidak ada gambar</span>
+                            @endif
+                        </td>
                         <td class="py-3 px-4 border-b border-gray-200">{{ $product->name }}</td>
                         <td class="py-3 px-4 border-b border-gray-200">Rp{{ number_format($product->price, 0, ',', '.') }}</td>
                         {{-- status --}}

@@ -6,9 +6,6 @@ use App\Models\Product;
 use App\Models\Category;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use App\Services\HubApiService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -44,13 +41,13 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'stock' => 'nullable|numeric',
-            'image' => 'nullable|image|max:2048', // Jika ada field type
+            'image' => 'nullable|image|max:2048', 
         ]);
 
         $validated['id'] = Str::uuid();
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $validated['image'] = $request->file('image')->store('products', 'public'); 
         }
 
 

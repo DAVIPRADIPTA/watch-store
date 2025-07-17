@@ -30,7 +30,7 @@
                 </nav>
                 <div class="flex items-center space-x-6">
                     {{-- Cek apakah customer sudah login --}}
-                    @if(auth()->guard('customer')->check())
+                    @if (auth()->guard('customer')->check())
                         <!-- Dropdown User -->
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open"
@@ -66,9 +66,6 @@
                     <h1 class="font-serif text-6xl md:text-8xl font-bold tracking-tight text-orange-400">RESPECT YOUR
                         TIME</h1>
                 </div>
-                <a href="#"
-                    class="mt-8 px-10 py-3 border border-black rounded-full text-sm uppercase font-semibold tracking-widest text-black hover:bg-black hover:text-white transition-colors duration-300">Shop
-                    Now</a>
             </div>
         </div>
 
@@ -103,7 +100,7 @@
                         All Category
                     </a>
 
-                    @foreach($categories as $category)
+                    @foreach ($categories as $category)
                         <a href="{{ route('category.filter', $category->id) }}"
                             class="uppercase text-sm font-semibold tracking-widest px-5 py-2 rounded-full border border-black transition duration-300
                                        {{ request()->routeIs('category.filter') && request()->route('id') == $category->id ? 'bg-black text-white' : 'text-black hover:bg-black hover:text-white' }}">
@@ -115,14 +112,17 @@
                 <!-- Grid Produk -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
                     @forelse($products as $product)
-                        <a href="#" class="group block transition duration-300">
+                        <a href="{{ route('products.show', $product->id) }}"
+                            class="group block transition duration-300">
                             <div class="bg-gray-100 aspect-square flex items-center justify-center p-6">
                                 <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
                                     class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105">
                             </div>
-                            <p class="mt-5 text-base text-gray-800 font-serif uppercase tracking-wide">{{ $product->name }}
+                            <p class="mt-5 text-base text-gray-800 font-serif uppercase tracking-wide">
+                                {{ $product->name }}
                             </p>
-                            <p class="text-sm text-gray-500 font-sans">Rp{{ number_format($product->price, 0, ',', '.') }}
+                            <p class="text-sm text-gray-500 font-sans">
+                                Rp{{ number_format($product->price, 0, ',', '.') }}
                             </p>
                         </a>
                     @empty
@@ -132,68 +132,66 @@
             </div>
         </section>
 
-
-
         <!-- Section Collection Highlight -->
-        <section class="pb-20">
-            <div class="container mx-auto px-6 md:px-8">
-                <div class="flex flex-col lg:flex-row bg-stone-50">
-                    <div class="lg:w-1/2"><img src="{{ asset('images/collection-banner.jpg') }}"
-                            alt="Man wearing a luxury watch" class="w-full h-full object-cover"></div>
-                    <div class="lg:w-1/2 flex flex-col justify-between p-12 md:p-20">
-                        <div>
-                            <p class="text-sm uppercase tracking-widest text-gray-500">The Dress Watch Collection</p>
-                            <h3 class="font-serif text-5xl md:text-6xl my-4">ELEGANCE REDEFINED</h3>
-                            <a href="#"
-                                class="inline-block mt-4 px-10 py-3 border border-black rounded-full text-sm uppercase font-semibold tracking-widest text-black hover:bg-black hover:text-white transition-colors duration-300">Shop
-                                All</a>
+        <section class="py-24 bg-orange-50">
+            @if ($cheapestProduct)
+                <div class="container mx-auto px-6 md:px-8">
+                    <h2
+                        class="font-serif text-5xl md:text-6xl uppercase tracking-wider mb-16 text-gray-900 text-center">
+                        Cheapest Product
+                    </h2>
+
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center bg-white shadow-md rounded-xl overflow-hidden">
+                        <!-- Gambar -->
+                        <div class="bg-gray-100 p-6 md:p-10 flex items-center justify-center">
+                            <img src="{{ asset('storage/' . $cheapestProduct->image) }}"
+                                alt="{{ $cheapestProduct->name }}"
+                                class="max-h-72 w-auto object-contain hover:scale-105 transition-transform duration-300">
                         </div>
-                        <div class="flex justify-end pt-12">
-                            <div class="w-2/3 md:w-1/2"><a href="#" class="group">
-                                    <div class="bg-gray-100 aspect-square"><img src="{{ asset('images/watch-5.png') }}"
-                                            alt="Elegance Redefined Watch"
-                                            class="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105">
-                                    </div>
-                                </a></div>
+
+                        <!-- Detail -->
+                        <div class="p-8 md:p-12 text-left">
+                            <h3 class="font-serif text-3xl md:text-4xl uppercase tracking-wide text-gray-900 mb-4">
+                                {{ $cheapestProduct->name }}
+                            </h3>
+                            <p class="text-lg text-gray-600 mb-6">
+                                Produk terbaik dengan harga terjangkau. Jangan lewatkan kesempatan ini.
+                            </p>
+                            <p class="text-2xl text-orange-500 font-bold mb-6">
+                                Rp{{ number_format($cheapestProduct->price, 0, ',', '.') }}
+                            </p>
+                            <a href="{{ route('products.show', $cheapestProduct->id) }}"
+                                class="inline-block px-10 py-3 border border-black rounded-full text-sm uppercase font-semibold tracking-widest text-black hover:bg-black hover:text-white transition-colors duration-300">
+                                Lihat Detail
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
         </section>
+
 
         <!-- Section About Us -->
-        <section class="py-24">
-            <div class="container mx-auto px-6 text-center">
-                <h2 class="font-serif text-3xl md:text-4xl uppercase tracking-wider leading-relaxed text-gray-800">
-                    About Us
-                </h2>
-                <h2 class="font-serif text-3xl md:text-4xl uppercase tracking-wider leading-relaxed text-gray-800">
-                    Precision in Every Tick. Timeless Elegance, Curated for the Modern Gentleman.
-                </h2>
+        <section class="py-24 bg-white relative">
+            <div class="container mx-auto px-6 md:px-12">
+                <div class="text-center max-w-4xl mx-auto relative z-10">
+                    <h2 class="font-serif text-5xl md:text-6xl uppercase tracking-widest text-gray-900 mb-6">
+                        About Us
+                    </h2>
+                    <p class="font-serif text-xl md:text-2xl text-gray-700 leading-relaxed tracking-wide">
+                        Precision in Every Tick. <span class="text-orange-500">Timeless Elegance</span>, Curated for the
+                        <span class="text-black font-semibold">Modern Gentleman</span>.
+                    </p>
+                </div>
+
+                <!-- Decorative Line -->
+                <div class="absolute top-12 left-1/2 -translate-x-1/2 w-24 h-1 bg-orange-400 rounded-full"></div>
             </div>
         </section>
 
-        <!-- Section Follow Us -->
-        <section class="pb-20">
-            <div class="container mx-auto px-6 md:px-8">
-                <div class="flex justify-between items-baseline mb-8">
-                    <h3 class="font-serif text-3xl md:text-4xl uppercase tracking-wider">Follow Us</h3><a href="#"
-                        class="font-serif text-2xl md:text-3xl uppercase tracking-wider text-gray-800 hover:text-black">@watchstore.official</a>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4"><a href="#" class="block group"><img
-                            src="{{ asset('images/insta-1.jpg') }}" alt="Instagram post 1"
-                            class="aspect-[4/3] w-full object-cover transition-opacity group-hover:opacity-80"></a><a
-                        href="#" class="block group"><img src="{{ asset('images/insta-2.jpg') }}" alt="Instagram post 2"
-                            class="aspect-[4/3] w-full object-cover transition-opacity group-hover:opacity-80"></a><a
-                        href="#" class="block group"><img src="{{ asset('images/insta-3.jpg') }}" alt="Instagram post 3"
-                            class="aspect-[4/3] w-full object-cover transition-opacity group-hover:opacity-80"></a><a
-                        href="#" class="block group"><img src="{{ asset('images/insta-4.jpg') }}" alt="Instagram post 4"
-                            class="aspect-[4/3] w-full object-cover transition-opacity group-hover:opacity-80"></a>
-                </div>
-            </div>
-        </section>
 
-        <!-- Section Newsletter Sign Up -->
+        {{-- <!-- Section Newsletter Sign Up -->
         <section class="bg-orange-300 text-black py-20">
             <div class="container mx-auto px-6 text-center">
                 <!-- <p class="text-sm font-semibold uppercase tracking-widest mb-2">Subscribe to our</p> -->
@@ -209,7 +207,7 @@
                 </form> -->
             </div>
         </section>
-    </main>
+    </main> --}}
 
     <!-- =================================================================== -->
     <!--                       BAGIAN BARU: FOOTER                           -->
@@ -221,7 +219,7 @@
             <div class="container mx-auto px-6 md:px-8 py-12">
                 <div class="text-xs uppercase tracking-widest text-center mx-auto">
                     <span>© WATCH STORE {{ date('Y') }}</span><br>
-                    <span>Powered by <a href="https://laravel.com" class="hover:underline">Laravel</a></span>
+                    <span>Powered by <a href="https://laravel.com" class="hover:underline">Solo Belom Tidur Team</a></span>
                 </div>
             </div>
         </div>
