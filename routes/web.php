@@ -28,7 +28,7 @@ Route::get('/category/{id}', function ($id) {
 Route::get('/products/{id}', function ($id) {
     $product = Product::where('id', $id)->firstOrFail();
     return view('products.show', compact('product'));
-})->name('products.show');
+})->name('product.show');
 
 
 Route::view('dashboard', 'dashboard')

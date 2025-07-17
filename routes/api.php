@@ -7,8 +7,8 @@ use App\Http\Controllers\api\ProductController;
 use App\Http\Controllers\OrderController;
 
 
-Route::apiResource('/categories', CategoryController::class)->only('index', 'show');
-Route::apiResource('/products', ProductController::class)->only('index', 'show');
+// Route::apiResource('/categories', CategoryController::class)->only('index', 'show');
+// Route::apiResource('/products', ProductController::class)->only('index', 'show');
 // Route::post('/categories/{id}/sync-to-hub', [CategoryController::class, 'syncToHub'])->name('categories.sync');
 
 // Route::put('/products/{product}/toggle-visibility', [ProductController::class, 'toggleVisibility']);
